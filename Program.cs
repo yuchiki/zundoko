@@ -6,28 +6,23 @@ using static Zdk;
 
 static class Program {
     static Random random = new Random();
-    static void Main() => Infinite().Select(_ => AtRandom(Zun, Doko)).Judge().ForEach(WriteLine);
     static IEnumerable<int> Infinite() { while (true) yield return 0; }
     static T AtRandom<T>(params T[] args) => args[random.Next(args.Length)];
 
-    static IEnumerable<object> Judge(this IEnumerable<Zdk> source) {
-        var history = new Queue<Zdk>();
-
-        foreach (var zdk in source) {
-            yield return zdk;
-            history.SizedEnqueue(zdk, 5);
-            Zdk[] pattern = { Zun, Zun, Zun, Zun, Doko };
-            if (history.SequenceEqual(pattern)) break;
-        }
-        yield return Kiyoshi;
-    }
+    static Zdk[] pattern = { Zun, Zun, Zun, Zun, Doko };
+    static void Main() =>
+        Infinite().Select(_ => AtRandom(Zun, Doko))
+        .Scan(new Queue<Zdk>(), (q, zd) => q.SizedEnqueue(zd, 6))
+        .TakeWhile(x => !x.Take(5).SequenceEqual(pattern))
+        .Select(x => x.Last()).Cast<object>().ForEach(WriteLine);
 }
 
 enum Zdk { Zun, Doko, Kiyoshi }
 
 static class QueueExtention {
-    public static void SizedEnqueue<T>(this Queue<T> queue, T item, int size) {
+    public static Queue<T> SizedEnqueue<T>(this Queue<T> queue, T item, int size) {
         queue.Enqueue(item);
         if (queue.Count > size) queue.Dequeue();
+        return queue;
     }
 }

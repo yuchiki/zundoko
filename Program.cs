@@ -12,7 +12,7 @@ static class Program {
     static Zdk[] pattern = { Zun, Zun, Zun, Zun, Doko };
     static void Main() =>
         Infinite().Select(_ => AtRandom(Zun, Doko))
-        .Scan(new Queue<Zdk>(), (q, zd) => q.SizedEnqueue(zd, 6))
+        .Scan(new Queue<Zdk>(), (q, zd) => q.History(zd, 6))
         .TakeWhile(x => !x.Take(5).SequenceEqual(pattern))
         .Select(x => x.Last()).Cast<object>().ForEach(WriteLine);
 }
@@ -20,7 +20,7 @@ static class Program {
 enum Zdk { Zun, Doko, Kiyoshi }
 
 static class QueueExtention {
-    public static Queue<T> SizedEnqueue<T>(this Queue<T> queue, T item, int size) {
+    public static Queue<T> History<T>(this Queue<T> queue, T item, int size) {
         queue.Enqueue(item);
         if (queue.Count > size) queue.Dequeue();
         return queue;
